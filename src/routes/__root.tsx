@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { SalesforceChat } from "@/components/SalesforceChat";
+
 
 function NotFoundComponent() {
   return (
@@ -122,10 +124,15 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Header />
+
       <main id="main-content">
         <Outlet />
       </main>
+
       <Footer />
+
+      <SalesforceChat />
     </QueryClientProvider>
   );
 }
+
