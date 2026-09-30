@@ -23,7 +23,7 @@ declare global {
 }
 
 const SALESFORCE_SCRIPT =
-  "https://radnetprm--sutherland.sandbox.my.site.com/ESWCustomMessagingForInAp1762357821483/assets/js/bootstrap.min.js";
+  "https://radnetprm--intfull.sandbox.my.site.com/ESWCustomMessagingForInAp1762357821483/assets/js/bootstrap.min.js";
 
 export function SalesforceChat() {
   useEffect(() => {
@@ -66,12 +66,12 @@ export function SalesforceChat() {
         esw.settings.language = "en_US";
 
         esw.init(
-          "00DVG000009XhCH",
+          "00DVG000009bmq5",
           "CustomMessagingForInAppandWeb",
-          "https://radnetprm--sutherland.sandbox.my.site.com/ESWCustomMessagingForInAp1762357821483",
+          "https://radnetprm--intfull.sandbox.my.site.com/ESWCustomMessagingForInAp1762357821483",
           {
             scrt2URL:
-              "https://radnetprm--sutherland.sandbox.my.salesforce-scrt.com",
+              "https://radnetprm--intfull.sandbox.my.salesforce-scrt.com",
           },
         );
       } catch (error) {
