@@ -43,6 +43,9 @@ export function SalesforceChat() {
         esw.prechatAPI.setVisiblePrechatFields({
           WebsiteURL: {
             value: "https://www.advancedradiology.com",
+          },
+		  PortalSiteURL: {
+            value: value: window.location.href,
           }
         });
 
