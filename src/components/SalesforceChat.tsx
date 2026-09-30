@@ -45,7 +45,7 @@ export function SalesforceChat() {
             value: "https://www.advancedradiology.com",
           },
 		  PortalSiteURL: {
-            value: value: window.location.href,
+            value: window.location.href,
           },
         });
 
