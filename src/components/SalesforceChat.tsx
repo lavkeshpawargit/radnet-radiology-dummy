@@ -46,7 +46,7 @@ export function SalesforceChat() {
           },
 		  PortalSiteURL: {
             value: value: window.location.href,
-          }
+          },
         });
 
         esw.prechatAPI.setHiddenPrechatFields({
