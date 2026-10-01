@@ -15,8 +15,12 @@ declare global {
         },
       ) => void;
       prechatAPI: {
-        setVisiblePrechatFields: (fields: Record<string, { value: string }>) => void;
-        setHiddenPrechatFields: (fields: Record<string, string>) => void;
+        setVisiblePrechatFields: (
+          fields: Record<string, { value: string }>,
+        ) => void;
+        setHiddenPrechatFields: (
+          fields: Record<string, string>,
+        ) => void;
       };
     };
   }
@@ -27,35 +31,70 @@ const SALESFORCE_SCRIPT =
 
 export function SalesforceChat() {
   useEffect(() => {
-    // Salesforce has already been loaded.
-    if (window.embeddedservice_bootstrap) {
-      return;
-    }
+    let messagingReady = false;
 
     const handleMessagingReady = () => {
+      messagingReady = true;
+    };
+
+    const handleChatButtonClicked = () => {
+      if (!messagingReady) {
+        return;
+      }
+
+      const esw = window.embeddedservice_bootstrap;
+
+      if (!esw) {
+        return;
+      }
+
+      // Capture the URL at the exact moment the user clicks the chat button
+      const chatStartUrl = window.location.href;
+
+      console.log("Chat clicked on URL:", chatStartUrl);
+
       try {
-        const esw = window.embeddedservice_bootstrap;
-
-        if (!esw) {
-          return;
-        }
-
         esw.prechatAPI.setVisiblePrechatFields({
           WebsiteURL: {
             value: "https://www.advancedradiology.com",
           },
-		  PortalSiteURL: {
-            value: window.location.href,
+          PortalSiteURL: {
+            value: chatStartUrl,
           },
         });
 
         esw.prechatAPI.setHiddenPrechatFields({
-          "Site URL": window.location.href,
+          "Site URL": chatStartUrl,
         });
       } catch (error) {
         console.error("Failed to set Salesforce pre-chat fields:", error);
       }
     };
+
+    window.addEventListener(
+      "onEmbeddedMessagingReady",
+      handleMessagingReady,
+    );
+
+    window.addEventListener(
+      "onEmbeddedMessagingButtonClicked",
+      handleChatButtonClicked,
+    );
+
+    // Salesforce has already been loaded.
+    if (window.embeddedservice_bootstrap) {
+      return () => {
+        window.removeEventListener(
+          "onEmbeddedMessagingReady",
+          handleMessagingReady,
+        );
+
+        window.removeEventListener(
+          "onEmbeddedMessagingButtonClicked",
+          handleChatButtonClicked,
+        );
+      };
+    }
 
     const initEmbeddedMessaging = () => {
       try {
@@ -82,11 +121,6 @@ export function SalesforceChat() {
       }
     };
 
-    window.addEventListener(
-      "onEmbeddedMessagingReady",
-      handleMessagingReady,
-    );
-
     const existingScript = document.querySelector(
       `script[src="${SALESFORCE_SCRIPT}"]`,
     );
@@ -105,6 +139,11 @@ export function SalesforceChat() {
       window.removeEventListener(
         "onEmbeddedMessagingReady",
         handleMessagingReady,
+      );
+
+      window.removeEventListener(
+        "onEmbeddedMessagingButtonClicked",
+        handleChatButtonClicked,
       );
     };
   }, []);
