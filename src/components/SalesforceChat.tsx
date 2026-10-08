@@ -62,10 +62,6 @@ export function SalesforceChat() {
             value: chatStartUrl,
           },
         });
-
-        esw.prechatAPI.setHiddenPrechatFields({
-          "Site URL": chatStartUrl,
-        });
       } catch (error) {
         console.error("Failed to set Salesforce pre-chat fields:", error);
       }
