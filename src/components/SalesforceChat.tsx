@@ -57,10 +57,11 @@ export function SalesforceChat() {
         esw.prechatAPI.setVisiblePrechatFields({
           WebsiteURL: {
             value: "https://www.advancedradiology.com",
-          },
-          PortalSiteURL: {
-            value: chatStartUrl,
-          },
+          }
+        });
+		
+		esw.prechatAPI.setHiddenPrechatFields({
+          "Site URL": chatStartUrl,
         });
       } catch (error) {
         console.error("Failed to set Salesforce pre-chat fields:", error);
