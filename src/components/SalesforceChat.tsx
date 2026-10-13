@@ -56,8 +56,11 @@ export function SalesforceChat() {
       try {
         esw.prechatAPI.setVisiblePrechatFields({
           WebsiteURL: {
-            value: "https://www.radnet.com/northern-california/locations/diagnostic-radiological-imaging-sacramento?utm_source=GMB_DRI_location&utm_medium=map_listings&utm_campaign=GMB&utm_content=location",
-          }
+            value: "https://www.advancedradiology.com",
+          },
+          PortalSiteURL: {
+            value: chatStartUrl,
+          },
         });
 		
 		esw.prechatAPI.setHiddenPrechatFields({
