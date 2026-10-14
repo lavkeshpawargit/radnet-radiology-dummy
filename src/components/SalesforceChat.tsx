@@ -18,9 +18,6 @@ declare global {
         setVisiblePrechatFields: (
           fields: Record<string, { value: string }>,
         ) => void;
-        setHiddenPrechatFields: (
-          fields: Record<string, string>,
-        ) => void;
       };
     };
   }
@@ -31,44 +28,53 @@ const SALESFORCE_SCRIPT =
 
 export function SalesforceChat() {
   useEffect(() => {
-    let messagingReady = false;
-
     const handleMessagingReady = () => {
-      messagingReady = true;
-    };
-
-    const handleChatButtonClicked = () => {
-      if (!messagingReady) {
-        return;
-      }
-
       const esw = window.embeddedservice_bootstrap;
 
-      if (!esw) {
-        return;
-      }
-
-      // Capture the URL at the exact moment the user clicks the chat button
-      const chatStartUrl = window.location.href;
-
-      console.log("Chat clicked on URL:", chatStartUrl);
+      if (!esw) return;
 
       try {
         esw.prechatAPI.setVisiblePrechatFields({
           WebsiteURL: {
             value: "https://www.advancedradiology.com",
           },
+        });
+
+        console.log("WebsiteURL assigned on Messaging Ready.");
+      } catch (error) {
+        console.error(
+          "Failed to set WebsiteURL:",
+          error,
+        );
+      }
+    };
+
+    const handlePreChatSubmitted = (event: Event) => {
+      const esw = window.embeddedservice_bootstrap;
+
+      if (!esw) return;
+
+      const chatStartUrl = window.location.href;
+
+      try {
+        esw.prechatAPI.setVisiblePrechatFields({
           PortalSiteURL: {
             value: chatStartUrl,
           },
         });
-		
-		esw.prechatAPI.setHiddenPrechatFields({
-          "Site URL": chatStartUrl,
-        });
+
+        console.log(
+          "PortalSiteURL assigned on Pre-Chat Submitted:",
+          chatStartUrl,
+        );
       } catch (error) {
-        console.error("Failed to set Salesforce pre-chat fields:", error);
+        console.error(
+          "Failed to set PortalSiteURL:",
+          error,
+        );
       }
+
+      console.log("Pre-chat submitted event:", event);
     };
 
     window.addEventListener(
@@ -77,38 +83,25 @@ export function SalesforceChat() {
     );
 
     window.addEventListener(
-      "onEmbeddedMessagingButtonClicked",
-      handleChatButtonClicked,
+      "onEmbeddedMessagingPreChatSubmitted",
+      handlePreChatSubmitted,
     );
-
-    // Salesforce has already been loaded.
-    if (window.embeddedservice_bootstrap) {
-      return () => {
-        window.removeEventListener(
-          "onEmbeddedMessagingReady",
-          handleMessagingReady,
-        );
-
-        window.removeEventListener(
-          "onEmbeddedMessagingButtonClicked",
-          handleChatButtonClicked,
-        );
-      };
-    }
 
     const initEmbeddedMessaging = () => {
       try {
         const esw = window.embeddedservice_bootstrap;
 
         if (!esw) {
-          console.error("Salesforce Embedded Messaging did not load.");
+          console.error(
+            "Salesforce Embedded Messaging did not load.",
+          );
           return;
         }
 
         esw.settings.language = "en_US";
 
         esw.init(
-          "00DVG000009bmq5",
+          "00000000000",
           "CustomMessagingForInAppandWeb",
           "https://radnetprm--intfull.sandbox.my.site.com/ESWCustomMessagingForInAp1762357821483",
           {
@@ -117,7 +110,10 @@ export function SalesforceChat() {
           },
         );
       } catch (error) {
-        console.error("Error loading Salesforce Embedded Messaging:", error);
+        console.error(
+          "Error initializing Salesforce Messaging:",
+          error,
+        );
       }
     };
 
@@ -125,12 +121,23 @@ export function SalesforceChat() {
       `script[src="${SALESFORCE_SCRIPT}"]`,
     );
 
-    if (!existingScript) {
+    if (existingScript) {
+      existingScript.addEventListener(
+        "load",
+        initEmbeddedMessaging,
+      );
+    } else {
       const script = document.createElement("script");
 
       script.type = "text/javascript";
       script.src = SALESFORCE_SCRIPT;
       script.onload = initEmbeddedMessaging;
+
+      script.onerror = () => {
+        console.error(
+          "Failed to load Salesforce Messaging script.",
+        );
+      };
 
       document.body.appendChild(script);
     }
@@ -142,8 +149,8 @@ export function SalesforceChat() {
       );
 
       window.removeEventListener(
-        "onEmbeddedMessagingButtonClicked",
-        handleChatButtonClicked,
+        "onEmbeddedMessagingPreChatSubmitted",
+        handlePreChatSubmitted,
       );
     };
   }, []);
