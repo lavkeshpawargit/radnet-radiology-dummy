@@ -35,51 +35,39 @@ export function SalesforceChat() {
 
     const handleMessagingReady = () => {
       messagingReady = true;
+    };
+
+    const handleChatButtonClicked = () => {
+      if (!messagingReady) {
+        return;
+      }
 
       const esw = window.embeddedservice_bootstrap;
 
-      if (!esw) return;
+      if (!esw) {
+        return;
+      }
+
+      // Capture the URL at the exact moment the user clicks the chat button
+      const chatStartUrl = window.location.href;
+
+      console.log("Chat clicked on URL:", chatStartUrl);
 
       try {
         esw.prechatAPI.setVisiblePrechatFields({
           WebsiteURL: {
             value: "https://www.advancedradiology.com",
           },
-        });
-
-        console.log("WebsiteURL assigned on Messaging Ready.");
-      } catch (error) {
-        console.error(
-          "Failed to set WebsiteURL:",
-          error,
-        );
-      }
-    };
-
-    const handlePreChatSubmitted = (event: Event) => {
-      if (!messagingReady) return;
-
-      const esw = window.embeddedservice_bootstrap;
-
-      if (!esw) return;
-
-      const chatStartUrl = window.location.href;
-
-      console.log("Pre-chat submitted event:", event);
-      console.log("Current page URL:", chatStartUrl);
-
-      try {
-        esw.prechatAPI.setVisiblePrechatFields({
           PortalSiteURL: {
             value: chatStartUrl,
           },
         });
-
+		
+		esw.prechatAPI.setHiddenPrechatFields({
+          "Site URL": chatStartUrl,
+        });
       } catch (error) {
-        console.error(
-          "Failed to set Salesforce pre-chat fields:",
-          error,
-        );
+        console.error("Failed to set Salesforce pre-chat fields:", error);
       }
     };
 
@@ -89,24 +77,23 @@ export function SalesforceChat() {
     );
 
     window.addEventListener(
-      "onEmbeddedMessagingPreChatSubmitted",
-      handlePreChatSubmitted,
+      "onEmbeddedMessagingButtonClicked",
+      handleChatButtonClicked,
     );
 
-    const cleanup = () => {
-      window.removeEventListener(
-        "onEmbeddedMessagingReady",
-        handleMessagingReady,
-      );
-
-      window.removeEventListener(
-        "onEmbeddedMessagingPreChatSubmitted",
-        handlePreChatSubmitted,
-      );
-    };
-
+    // Salesforce has already been loaded.
     if (window.embeddedservice_bootstrap) {
-      return cleanup;
+      return () => {
+        window.removeEventListener(
+          "onEmbeddedMessagingReady",
+          handleMessagingReady,
+        );
+
+        window.removeEventListener(
+          "onEmbeddedMessagingButtonClicked",
+          handleChatButtonClicked,
+        );
+      };
     }
 
     const initEmbeddedMessaging = () => {
@@ -114,9 +101,7 @@ export function SalesforceChat() {
         const esw = window.embeddedservice_bootstrap;
 
         if (!esw) {
-          console.error(
-            "Salesforce Embedded Messaging did not load.",
-          );
+          console.error("Salesforce Embedded Messaging did not load.");
           return;
         }
 
@@ -132,10 +117,7 @@ export function SalesforceChat() {
           },
         );
       } catch (error) {
-        console.error(
-          "Error loading Salesforce Embedded Messaging:",
-          error,
-        );
+        console.error("Error loading Salesforce Embedded Messaging:", error);
       }
     };
 
@@ -150,21 +132,20 @@ export function SalesforceChat() {
       script.src = SALESFORCE_SCRIPT;
       script.onload = initEmbeddedMessaging;
 
-      script.onerror = () => {
-        console.error(
-          "Failed to load Salesforce Messaging script.",
-        );
-      };
-
       document.body.appendChild(script);
-    } else {
-      existingScript.addEventListener(
-        "load",
-        initEmbeddedMessaging,
-      );
     }
 
-    return cleanup;
+    return () => {
+      window.removeEventListener(
+        "onEmbeddedMessagingReady",
+        handleMessagingReady,
+      );
+
+      window.removeEventListener(
+        "onEmbeddedMessagingButtonClicked",
+        handleChatButtonClicked,
+      );
+    };
   }, []);
 
   return null;
