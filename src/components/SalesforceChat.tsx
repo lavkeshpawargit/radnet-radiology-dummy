@@ -56,7 +56,7 @@ export function SalesforceChat() {
       try {
         esw.prechatAPI.setVisiblePrechatFields({
           WebsiteURL: {
-            value: "https://www.advancedradiology.com",
+            value: "https://www.radnet.com/lenox-hill-radiology",
           },
           PortalSiteURL: {
             value: chatStartUrl,
