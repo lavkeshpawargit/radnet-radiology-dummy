@@ -52,6 +52,7 @@ export function SalesforceChat() {
       const chatStartUrl = window.location.href;
 
       console.log("Chat clicked on URL:", chatStartUrl);
+	  console.log("Site:- https://www.radnet.com/lenox-hill-radiology");
 
       try {
         esw.prechatAPI.setVisiblePrechatFields({
